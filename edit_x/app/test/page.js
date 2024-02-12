@@ -30,7 +30,7 @@ const commitMessage = 'Update variables';
 
   return (<> 
   
-     <div onClick={update} className='bg-white shadow-xl w-fit inline-block'>
+     <div onClick={update} className='bg-blue-200 text-3xl shadow-xl w-fit inline-block'>
         Hello test
         the var is {subject}
       
