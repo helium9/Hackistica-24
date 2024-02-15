@@ -6,18 +6,31 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "server": "nodemon server.js",
     "lint": "next lint"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
     "@nextui-org/react": "^2.2.9",
     "codemirror": "^6.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.2",
+    "express": "^4.18.2",
     "framer-motion": "^11.0.3",
     "monaco-editor": "^0.46.0",
+    "moongose": "^1.0.0",
+    "morgan": "^1.10.0",
     "next": "14.1.0",
+    "nodemon": "^3.0.3",
+    "quill": "^1.3.7",
+    "quill-cursors": "^4.0.2",
+    "quill-delta": "^5.1.0",
     "react": "^18",
-    "react-dom": "^18"
- 
+    "react-avatar": "^5.0.3",
+    "react-dom": "^18",
+    "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@types/node": "^20",
