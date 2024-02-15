@@ -3,7 +3,7 @@ import Editor from "@monaco-editor/react";
 import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import {languageOptions} from "./constants/languages";
+import { languageOptions } from "./constants/languages";
 import {
   Button,
   Dropdown,
@@ -37,8 +37,8 @@ export default function Home() {
   const [fontSize, setFontSize] = useState(30);
   const editorRef = useRef(null);
   const [currLanguage, setCurrLanguage] = useState(0);
-  const [sizes, setsizes] = useState([100, "30%", "auto"]);
-  const [nestedSizes, setNestedSizes] = useState([50, 50]);
+  const [sizes, setsizes] = useState([350, "30%", "auto"]);
+  const [nestedSizes, setNestedSizes] = useState([20, 80]);
 
   const layoutCSS = {
     height: "100%",
@@ -113,7 +113,10 @@ export default function Home() {
           <DropdownMenu aria-label="Static Actions">
             {languageOptions.map((Lang, index) => {
               return (
-                <DropdownItem key={Lang.id} onPress={() => setCurrLanguage(index)}>
+                <DropdownItem
+                  key={Lang.id}
+                  onPress={() => setCurrLanguage(index)}
+                >
                   {Lang.name}
                 </DropdownItem>
               );
@@ -130,7 +133,7 @@ export default function Home() {
         </Button>
       </div>
 
-      <div style={{ height: "100vh" }}>
+      <div style={{ height: "92.5vh" }}>
         <SplitPane
           split="horizontal"
           sizes={sizes}
@@ -153,15 +156,13 @@ export default function Home() {
                 theme="vs-dark"
                 height="100vh"
                 path={languageOptions[currLanguage].name}
-                defaultLanguage={
-                  languageOptions[currLanguage].name
-                }
+                defaultLanguage={languageOptions[currLanguage].name}
                 defaultValue={""}
                 onMount={(editor, monaco) => (editorRef.current = editor)}
               />
             </Pane>
           </SplitPane>
-          <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={200}>
+          <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={100}>
             pane2
           </Pane>
         </SplitPane>
