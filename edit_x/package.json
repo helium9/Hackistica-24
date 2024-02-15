@@ -10,12 +10,16 @@
   },
   "dependencies": {
     "@nextui-org/react": "^2.2.9",
+    "@octokit/auth-oauth-device": "^6.0.1",
+    "@octokit/core": "^5.1.0",
+    "@octokit/plugin-create-or-update-text-file": "^4.0.1",
+    "@octokit/rest": "^20.0.2",
+    "dotenv": "^16.4.4",
     "framer-motion": "^11.0.3",
-   
     "next": "14.1.0",
+    "octokit": "^3.1.2",
     "react": "^18",
     "react-dom": "^18"
- 
   },
   "devDependencies": {
     "@types/node": "^20",
