@@ -7,7 +7,7 @@ import {
   DropdownItem,
   Button,
 } from "@nextui-org/react";
-import { languageOptions } from "../Constants/languages";
+import { languageOptions } from "../constants/languages";
 
 export default function DropdownLanguage() {
   const [selectedLanguage, setSelectedLanguage] = useState(

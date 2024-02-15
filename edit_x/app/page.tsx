@@ -1,6 +1,9 @@
 "use client";
 import Editor from "@monaco-editor/react";
+import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import {languageOptions} from "./constants/languages";
 import {
   Button,
   Dropdown,
@@ -8,31 +11,32 @@ import {
   DropdownMenu,
   DropdownSection,
   DropdownItem,
+  Spinner,
 } from "@nextui-org/react";
 import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-const lang = {
-  Python: {
-    language: "python",
-    value: `print("Hello there!")`,
-  },
-  HTML: {
-    language: "html",
-    value: "<div> </div>",
-  },
-  Javascript: {
-    language: "javascript",
-    value: `console.log("Hi")`,
-  },
-};
+// const lang = {
+//   Python: {
+//     language: "python",
+//     value: `print("Hello there!")`,
+//   },
+//   HTML: {
+//     language: "html",
+//     value: "<div> </div>",
+//   },
+//   Javascript: {
+//     language: "javascript",
+//     value: `console.log("Hi")`,
+//   },
+// };
 
 export default function Home() {
   const [fontSize, setFontSize] = useState(30);
   const editorRef = useRef(null);
-  const [currLanguage, setCurrLanguage] = useState("HTML");
+  const [currLanguage, setCurrLanguage] = useState(0);
   const [sizes, setsizes] = useState([100, "30%", "auto"]);
   const [nestedSizes, setNestedSizes] = useState([50, 50]);
 
@@ -42,8 +46,38 @@ export default function Home() {
     alignItems: "center",
     justifyContent: "center",
   };
-
-  // console.log(editorRef.current.getValue());
+  // console.log(languageOptions);
+  // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
+  const submitCode = () => {
+    axios
+      .post("http://localhost:2358/submissions", {
+        source_code: editorRef.current.getValue(),
+        language_id: languageOptions[currLanguage].id,
+        number_of_runs: null,
+        stdin: "",
+        expected_output: null,
+        cpu_time_limit: null,
+        cpu_extra_time: null,
+        wall_time_limit: null,
+        memory_limit: null,
+        stack_limit: null,
+        max_processes_and_or_threads: null,
+        enable_per_process_and_thread_time_limit: null,
+        enable_per_process_and_thread_memory_limit: null,
+        max_file_size: null,
+        enable_network: null,
+      })
+      .then((res) => {
+        return res.data.token;
+      })
+      .then((res) => {
+        setTimeout(() => {
+          axios
+            .get(`http://localhost:2358/submissions/${res}`)
+            .then((res) => console.log(res));
+        }, 5000);
+      });
+  };
   return (
     <main>
       <div className="flex flex-row gap-4 items-center p-2">
@@ -73,19 +107,27 @@ export default function Home() {
         <Dropdown>
           <DropdownTrigger>
             <Button variant="bordered" className="w-fit">
-              Lang: {currLanguage}
+              {languageOptions[currLanguage].name}
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Static Actions">
-            {Object.keys(lang).map((Lang) => {
+            {languageOptions.map((Lang, index) => {
               return (
-                <DropdownItem key={Lang} onPress={() => setCurrLanguage(Lang)}>
-                  {Lang}
+                <DropdownItem key={Lang.id} onPress={() => setCurrLanguage(index)}>
+                  {Lang.name}
                 </DropdownItem>
               );
             })}
           </DropdownMenu>
         </Dropdown>
+        <Button
+          variant="bordered"
+          className="ml-auto w-fit"
+          onPress={submitCode}
+        >
+          {/* <Spinner/> */}
+          <PlayArrow />
+        </Button>
       </div>
 
       <div style={{ height: "100vh" }}>
@@ -110,12 +152,12 @@ export default function Home() {
                 width="100%"
                 theme="vs-dark"
                 height="100vh"
-                path={lang[currLanguage as keyof typeof lang].language}
+                path={languageOptions[currLanguage].name}
                 defaultLanguage={
-                  lang[currLanguage as keyof typeof lang].language
+                  languageOptions[currLanguage].name
                 }
-                defaultValue={lang[currLanguage as keyof typeof lang].value}
-                onMount={(editor) => (editorRef.current = editor)}
+                defaultValue={""}
+                onMount={(editor, monaco) => (editorRef.current = editor)}
               />
             </Pane>
           </SplitPane>
