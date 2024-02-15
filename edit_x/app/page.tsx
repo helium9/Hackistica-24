@@ -156,7 +156,13 @@ export default function Home() {
                 theme="vs-dark"
                 height="100vh"
                 path={languageOptions[currLanguage].name}
+<<<<<<< HEAD
                 defaultLanguage={languageOptions[currLanguage].name}
+=======
+                defaultLanguage={
+                  languageOptions[currLanguage].value
+                }
+>>>>>>> a04658846e62039a67f7954c5086fd0e422713be
                 defaultValue={""}
                 onMount={(editor, monaco) => (editorRef.current = editor)}
               />
