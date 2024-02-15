@@ -4,6 +4,7 @@ import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { languageOptions } from "./constants/languages";
+import { languageOptions } from "./constants/languages";
 import {
   Textarea,
   Button,
@@ -120,6 +121,10 @@ export default function Home() {
                   key={Lang.id}
                   onPress={() => setCurrLanguage(index)}
                 >
+                <DropdownItem
+                  key={Lang.id}
+                  onPress={() => setCurrLanguage(index)}
+                >
                   {Lang.name}
                 </DropdownItem>
               );
@@ -136,6 +141,7 @@ export default function Home() {
         </Button>
       </div>
 
+      <div style={{ height: "92.5vh" }}>
       <div style={{ height: "92.5vh" }}>
         <SplitPane
           split="horizontal"
