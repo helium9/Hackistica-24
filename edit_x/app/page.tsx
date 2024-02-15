@@ -4,7 +4,6 @@ import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { languageOptions } from "./constants/languages";
-import { languageOptions } from "./constants/languages";
 import {
   Textarea,
   Button,
@@ -115,20 +114,14 @@ export default function Home() {
             aria-label="Static Actions"
             classNames={{ base: "h-96 overflow-auto scrollbar-hide" }}
           >
-            {languageOptions.map((Lang, index) => {
-              return (
-                <DropdownItem
-                  key={Lang.id}
-                  onPress={() => setCurrLanguage(index)}
-                >
-                <DropdownItem
-                  key={Lang.id}
-                  onPress={() => setCurrLanguage(index)}
-                >
-                  {Lang.name}
-                </DropdownItem>
-              );
-            })}
+            {languageOptions.map((Lang, index) => (
+              <DropdownItem
+                key={Lang.id}
+                onPress={() => setCurrLanguage(index)}
+              >
+                {Lang.name}
+              </DropdownItem>
+            ))}
           </DropdownMenu>
         </Dropdown>
         <Button
@@ -141,7 +134,6 @@ export default function Home() {
         </Button>
       </div>
 
-      <div style={{ height: "92.5vh" }}>
       <div style={{ height: "92.5vh" }}>
         <SplitPane
           split="horizontal"
@@ -187,7 +179,7 @@ export default function Home() {
               {" "}
               {/*  pane2a */}
               <Textarea
-                classNames={{ base: "h-full", innerWrapper: "h-dvh" }}
+                classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
                 placeholder="Input"
                 size="lg"
                 fullWidth={true}
@@ -202,7 +194,7 @@ export default function Home() {
               {" "}
               {/* pane2b */}
               <Textarea
-                classNames={{ base: "h-full", innerWrapper: "h-dvh" }}
+                classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
                 placeholder="Output"
                 size="lg"
                 fullWidth={true}
