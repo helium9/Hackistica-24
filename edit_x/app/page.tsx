@@ -154,7 +154,7 @@ export default function Home() {
                 height="100vh"
                 path={languageOptions[currLanguage].name}
                 defaultLanguage={
-                  languageOptions[currLanguage].name
+                  languageOptions[currLanguage].value
                 }
                 defaultValue={""}
                 onMount={(editor, monaco) => (editorRef.current = editor)}
