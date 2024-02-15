@@ -3,8 +3,9 @@ import Editor from "@monaco-editor/react";
 import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import {languageOptions} from "./constants/languages";
+import { languageOptions } from "./constants/languages";
 import {
+  Textarea,
   Button,
   Dropdown,
   DropdownTrigger,
@@ -17,6 +18,8 @@ import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+// import LanguageSelect from "./components/languageDropDown";
+// import FontSizeSelect from "./components/Fontsize";
 
 // const lang = {
 //   Python: {
@@ -37,15 +40,12 @@ export default function Home() {
   const [fontSize, setFontSize] = useState(30);
   const editorRef = useRef(null);
   const [currLanguage, setCurrLanguage] = useState(0);
-  const [sizes, setsizes] = useState([100, "30%", "auto"]);
-  const [nestedSizes, setNestedSizes] = useState([50, 50]);
+  const [sizes, setsizes] = useState([350, "30%", "auto"]);
+  const [nestedSizes, setNestedSizes] = useState([20, 80]);
+  const [stdinValue, setStdinValue] = useState("");
+  const [executionResult, setExecutionResult] = useState("");
+  const [pane2Sizes, setPane2Sizes] = useState([50, 50]);
 
-  const layoutCSS = {
-    height: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  };
   // console.log(languageOptions);
   // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
   const submitCode = () => {
@@ -54,7 +54,7 @@ export default function Home() {
         source_code: editorRef.current.getValue(),
         language_id: languageOptions[currLanguage].id,
         number_of_runs: null,
-        stdin: "",
+        stdin: stdinValue,
         expected_output: null,
         cpu_time_limit: null,
         cpu_extra_time: null,
@@ -74,7 +74,7 @@ export default function Home() {
         setTimeout(() => {
           axios
             .get(`http://localhost:2358/submissions/${res}`)
-            .then((res) => console.log(res));
+            .then((res) => setExecutionResult(res.data.stdout));
         }, 5000);
       });
   };
@@ -110,10 +110,16 @@ export default function Home() {
               {languageOptions[currLanguage].name}
             </Button>
           </DropdownTrigger>
-          <DropdownMenu aria-label="Static Actions">
+          <DropdownMenu
+            aria-label="Static Actions"
+            classNames={{ base: "h-96 overflow-auto scrollbar-hide" }}
+          >
             {languageOptions.map((Lang, index) => {
               return (
-                <DropdownItem key={Lang.id} onPress={() => setCurrLanguage(index)}>
+                <DropdownItem
+                  key={Lang.id}
+                  onPress={() => setCurrLanguage(index)}
+                >
                   {Lang.name}
                 </DropdownItem>
               );
@@ -130,7 +136,7 @@ export default function Home() {
         </Button>
       </div>
 
-      <div style={{ height: "100vh" }}>
+      <div style={{ height: "92.5vh" }}>
         <SplitPane
           split="horizontal"
           sizes={sizes}
@@ -143,7 +149,10 @@ export default function Home() {
             onChange={setNestedSizes}
             sashRender={() => <div className="sash" />}
           >
-            <Pane style={{ ...layoutCSS, background: "#d5d7d9" }} minSize={200}>
+            <Pane
+              className="p-4 flex justify-center items-center h-full"
+              minSize={200}
+            >
               pane1
             </Pane>
             <Pane minSize={200}>
@@ -153,17 +162,49 @@ export default function Home() {
                 theme="vs-dark"
                 height="100vh"
                 path={languageOptions[currLanguage].name}
-                defaultLanguage={
-                  languageOptions[currLanguage].value
-                }
+                defaultLanguage={languageOptions[currLanguage].value}
                 defaultValue={""}
                 onMount={(editor, monaco) => (editorRef.current = editor)}
               />
             </Pane>
           </SplitPane>
-          <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={200}>
-            pane2
-          </Pane>
+          <SplitPane
+            split="vertical"
+            sizes={pane2Sizes}
+            onChange={setPane2Sizes}
+            sashRender={() => <div className="sash" />}
+          >
+            <Pane
+              className="p-4 pr-2 flex justify-center items-center h-full"
+              minSize={100}
+            >
+              {" "}
+              {/*  pane2a */}
+              <Textarea
+                classNames={{ base: "h-full", innerWrapper: "h-dvh" }}
+                placeholder="Input"
+                size="lg"
+                fullWidth={true}
+                value={stdinValue}
+                onValueChange={setStdinValue}
+              />
+            </Pane>
+            <Pane
+              className="p-4 pl-2 flex justify-center items-center h-full"
+              minSize={100}
+            >
+              {" "}
+              {/* pane2b */}
+              <Textarea
+                classNames={{ base: "h-full", innerWrapper: "h-dvh" }}
+                placeholder="Output"
+                size="lg"
+                fullWidth={true}
+                value={executionResult}
+                isReadOnly
+              />
+            </Pane>
+          </SplitPane>
         </SplitPane>
       </div>
     </main>

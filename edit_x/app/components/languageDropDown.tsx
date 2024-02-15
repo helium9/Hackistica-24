@@ -1,15 +1,9 @@
 import React from "react";
-import { useState } from "react";
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Button,
-} from "@nextui-org/react";
+import { Select, SelectItem } from "@nextui-org/react";
 import { languageOptions } from "../constants/languages";
+import { useState } from "react";
 
-export default function DropdownLanguage() {
+export default function LanguageSelect() {
   const [selectedLanguage, setSelectedLanguage] = useState(
     languageOptions[0].value
   );
@@ -20,21 +14,19 @@ export default function DropdownLanguage() {
     );
     setSelectedLanguage(selectedOption!.value);
   };
+
   return (
-    <Dropdown>
-      <DropdownTrigger>
-        <Button variant="bordered">Select Language</Button>
-      </DropdownTrigger>
-      <DropdownMenu aria-label="Static Actions">
-        {languageOptions.map((option) => (
-          <DropdownItem
-            key={option.value}
-            onClick={() => handleLanguageChange(option.value)}
-          >
-            {option.name}
-          </DropdownItem>
-        ))}
-      </DropdownMenu>
-    </Dropdown>
+    <Select
+      label="Select Language"
+      className="max-w-xs"
+      onChange={(event) => handleLanguageChange(event.target.value)}
+      value={selectedLanguage}
+    >
+      {languageOptions.map((option) => (
+        <SelectItem key={option.value} value={option.value}>
+          {option.name}
+        </SelectItem>
+      ))}
+    </Select>
   );
 }
