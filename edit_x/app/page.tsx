@@ -88,34 +88,6 @@ export default function Home() {
         </Dropdown>
       </div>
 
-      {/* <div style={{ height: "100vh" }}>
-        <SplitPane
-          split="vertical"
-          sizes={sizes}
-          onChange={setsizes}
-          sashRender={() => <div className="sash" />}
-        >
-          <Pane style={{ ...layoutCSS, background: "#d5d7d9" }} minSize={200}>
-            pane2
-          </Pane>
-          <Pane minSize={200}>
-            <Editor
-              options={{ fontSize: fontSize }}
-              width="100%"
-              theme="vs-dark"
-              height="100vh"
-              path={lang[currLanguage as keyof typeof lang].language}
-              defaultLanguage={lang[currLanguage as keyof typeof lang].language}
-              defaultValue={lang[currLanguage as keyof typeof lang].value}
-              onMount={(editor) => (editorRef.current = editor)}
-            />
-          </Pane>
-
-          <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={200}>
-            pane3
-          </Pane>
-        </SplitPane>
-      </div> */}
       <div style={{ height: "100vh" }}>
         <SplitPane
           split="horizontal"
