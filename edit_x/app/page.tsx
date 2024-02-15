@@ -1,6 +1,6 @@
 "use client";
 import Editor from "@monaco-editor/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Button,
   Dropdown,
@@ -9,6 +9,10 @@ import {
   DropdownSection,
   DropdownItem,
 } from "@nextui-org/react";
+import SplitPane, { Pane } from "split-pane-react";
+import "split-pane-react/esm/themes/default.css";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 
 const lang = {
   Python: {
@@ -29,6 +33,16 @@ export default function Home() {
   const [fontSize, setFontSize] = useState(30);
   const editorRef = useRef(null);
   const [currLanguage, setCurrLanguage] = useState("HTML");
+  const [sizes, setsizes] = useState([100, "30%", "auto"]);
+  const [nestedSizes, setNestedSizes] = useState([50, 50]);
+
+  const layoutCSS = {
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
   // console.log(editorRef.current.getValue());
   return (
     <main>
@@ -74,17 +88,69 @@ export default function Home() {
         </Dropdown>
       </div>
 
-      <div>
-        <Editor
-          options={{ fontSize: fontSize }}
-          width="100%"
-          theme="vs-dark"
-          height="100vh"
-          path={lang[currLanguage].language}
-          defaultLanguage={lang[currLanguage].language}
-          defaultValue={lang[currLanguage].value}
-          onMount={(editor, monaco) => (editorRef.current = editor)}
-        />
+      {/* <div style={{ height: "100vh" }}>
+        <SplitPane
+          split="vertical"
+          sizes={sizes}
+          onChange={setsizes}
+          sashRender={() => <div className="sash" />}
+        >
+          <Pane style={{ ...layoutCSS, background: "#d5d7d9" }} minSize={200}>
+            pane2
+          </Pane>
+          <Pane minSize={200}>
+            <Editor
+              options={{ fontSize: fontSize }}
+              width="100%"
+              theme="vs-dark"
+              height="100vh"
+              path={lang[currLanguage as keyof typeof lang].language}
+              defaultLanguage={lang[currLanguage as keyof typeof lang].language}
+              defaultValue={lang[currLanguage as keyof typeof lang].value}
+              onMount={(editor) => (editorRef.current = editor)}
+            />
+          </Pane>
+
+          <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={200}>
+            pane3
+          </Pane>
+        </SplitPane>
+      </div> */}
+      <div style={{ height: "100vh" }}>
+        <SplitPane
+          split="horizontal"
+          sizes={sizes}
+          onChange={setsizes}
+          sashRender={() => <div className="sash" />}
+        >
+          <SplitPane
+            split="vertical"
+            sizes={nestedSizes}
+            onChange={setNestedSizes}
+            sashRender={() => <div className="sash" />}
+          >
+            <Pane style={{ ...layoutCSS, background: "#d5d7d9" }} minSize={200}>
+              pane1
+            </Pane>
+            <Pane minSize={200}>
+              <Editor
+                options={{ fontSize: fontSize }}
+                width="100%"
+                theme="vs-dark"
+                height="100vh"
+                path={lang[currLanguage as keyof typeof lang].language}
+                defaultLanguage={
+                  lang[currLanguage as keyof typeof lang].language
+                }
+                defaultValue={lang[currLanguage as keyof typeof lang].value}
+                onMount={(editor) => (editorRef.current = editor)}
+              />
+            </Pane>
+          </SplitPane>
+          <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={200}>
+            pane2
+          </Pane>
+        </SplitPane>
       </div>
     </main>
   );

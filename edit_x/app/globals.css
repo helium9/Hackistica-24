@@ -3,21 +3,21 @@
 @tailwind utilities;
 
 :root {
-    font-size: 18px;
+  font-size: 14px;
 }
 
-@media (min-width:640px) {
-    :root {
-        font-size: 18px;
-    }
+@media (min-width: 640px) {
+  :root {
+    font-size: 14px;
+  }
 }
-@media (min-width:1024px) {
-    :root {
-        font-size: 18px;
-    }
+@media (min-width: 1024px) {
+  :root {
+    font-size: 15px;
+  }
 }
-@media (min-width:1280px) {
-    :root {
-        font-size: 20px;
-    }
+@media (min-width: 1280px) {
+  :root {
+    font-size: 15px;
+  }
 }
