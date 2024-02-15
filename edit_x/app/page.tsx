@@ -12,26 +12,15 @@ import {
   DropdownSection,
   DropdownItem,
   Spinner,
+  Listbox,
+  ListboxSection,
+  ListboxItem,
 } from "@nextui-org/react";
 import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-
-// const lang = {
-//   Python: {
-//     language: "python",
-//     value: `print("Hello there!")`,
-//   },
-//   HTML: {
-//     language: "html",
-//     value: "<div> </div>",
-//   },
-//   Javascript: {
-//     language: "javascript",
-//     value: `console.log("Hi")`,
-//   },
-// };
+import DescriptionIcon from "@mui/icons-material/Description";
 
 export default function Home() {
   const [fontSize, setFontSize] = useState(30);
@@ -39,6 +28,9 @@ export default function Home() {
   const [currLanguage, setCurrLanguage] = useState(0);
   const [sizes, setsizes] = useState([350, "30%", "auto"]);
   const [nestedSizes, setNestedSizes] = useState([20, 80]);
+  const [pane2Sizes, setPane2Sizes] = useState([50, 50]);
+  const [stdinValue, setStdinValue] = useState("");
+  const [executionResult, setExecutionResult] = useState("");
 
   const layoutCSS = {
     height: "100%",
@@ -46,15 +38,14 @@ export default function Home() {
     alignItems: "center",
     justifyContent: "center",
   };
-  // console.log(languageOptions);
-  // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
+
   const submitCode = () => {
     axios
       .post("http://localhost:2358/submissions", {
         source_code: editorRef.current.getValue(),
         language_id: languageOptions[currLanguage].id,
         number_of_runs: null,
-        stdin: "",
+        stdin: stdinValue,
         expected_output: null,
         cpu_time_limit: null,
         cpu_extra_time: null,
@@ -74,13 +65,13 @@ export default function Home() {
         setTimeout(() => {
           axios
             .get(`http://localhost:2358/submissions/${res}`)
-            .then((res) => console.log(res));
+            .then((res) => setExecutionResult(res.data.stdout));
         }, 5000);
       });
   };
   return (
     <main>
-      <div className="flex flex-row gap-4 items-center p-2">
+      <div className="flex flex-row gap-4 items-center p-4">
         <span>Editor v0.1</span>
         <Dropdown>
           <DropdownTrigger>
@@ -89,6 +80,9 @@ export default function Home() {
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Static Actions">
+            <DropdownItem key="15" onPress={() => setFontSize(15)}>
+              15
+            </DropdownItem>
             <DropdownItem key="20" onPress={() => setFontSize(20)}>
               20
             </DropdownItem>
@@ -99,10 +93,12 @@ export default function Home() {
               40
             </DropdownItem>
             <DropdownItem key="80" onPress={() => setFontSize(80)}>
-              It's fucking big
+              Too large
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
+
+        {/* <FontSizeSelect /> */}
 
         <Dropdown>
           <DropdownTrigger>
@@ -110,7 +106,10 @@ export default function Home() {
               {languageOptions[currLanguage].name}
             </Button>
           </DropdownTrigger>
-          <DropdownMenu aria-label="Static Actions">
+          <DropdownMenu
+            aria-label="Static Actions"
+            classNames={{ base: "h-96 overflow-auto scrollbar-hide" }}
+          >
             {languageOptions.map((Lang, index) => {
               return (
                 <DropdownItem
@@ -123,6 +122,9 @@ export default function Home() {
             })}
           </DropdownMenu>
         </Dropdown>
+
+        {/* <LanguageSelect /> */}
+
         <Button
           variant="bordered"
           className="ml-auto w-fit"
@@ -133,7 +135,7 @@ export default function Home() {
         </Button>
       </div>
 
-      <div style={{ height: "92.5vh" }}>
+      <div style={{ height: "88vh" }}>
         <SplitPane
           split="horizontal"
           sizes={sizes}
@@ -146,8 +148,25 @@ export default function Home() {
             onChange={setNestedSizes}
             sashRender={() => <div className="sash" />}
           >
-            <Pane style={{ ...layoutCSS, background: "#d5d7d9" }} minSize={200}>
-              pane1
+            <Pane
+              style={{ ...layoutCSS }}
+              minSize={200}
+              className="bg-gray-900"
+            >
+              <div className="p-4 overflow-y-auto h-full flex flex-col space-y-2">
+                <div className="flex item-center space-x-2 text-white">
+                  <DescriptionIcon />
+                  <p>Log Entry 1</p>
+                </div>
+                <div className="flex item-center space-x-2 text-white">
+                  <DescriptionIcon />
+                  <p>Log Entry 1</p>
+                </div>
+                <div className="flex item-center space-x-2 text-white">
+                  <DescriptionIcon />
+                  <p>Log Entry 1</p>
+                </div>
+              </div>
             </Pane>
             <Pane minSize={200}>
               <Editor
@@ -156,21 +175,34 @@ export default function Home() {
                 theme="vs-dark"
                 height="100vh"
                 path={languageOptions[currLanguage].name}
-<<<<<<< HEAD
-                defaultLanguage={languageOptions[currLanguage].name}
-=======
-                defaultLanguage={
-                  languageOptions[currLanguage].value
-                }
->>>>>>> a04658846e62039a67f7954c5086fd0e422713be
+                defaultLanguage={languageOptions[currLanguage].value}
                 defaultValue={""}
                 onMount={(editor, monaco) => (editorRef.current = editor)}
               />
             </Pane>
           </SplitPane>
-          <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={100}>
-            pane2
-          </Pane>
+          <SplitPane
+            split="vertical"
+            sizes={pane2Sizes}
+            onChange={setPane2Sizes}
+            sashRender={() => <div className="sash" />}
+          >
+            <Pane style={{ ...layoutCSS, background: "#A9A9A9" }} minSize={100}>
+              {" "}
+              {/*  pane2a */}
+              <textarea
+                id="stdinInput"
+                style={{ width: "100%", height: "100%", resize: "none" }}
+                value={stdinValue}
+                onChange={(e) => setStdinValue(e.target.value)}
+              />
+            </Pane>
+            <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={100}>
+              {" "}
+              {/* pane2b */}
+              <pre>{executionResult}</pre>
+            </Pane>
+          </SplitPane>
         </SplitPane>
       </div>
     </main>
