@@ -1,6 +1,5 @@
 "use client";
 import Editor from "@monaco-editor/react";
-import { io } from "socket.io-client";
 import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
@@ -14,18 +13,18 @@ import {
   DropdownSection,
   DropdownItem,
   Spinner,
-  Card,
-  CardBody,
+  Listbox,
+  ListboxSection,
+  ListboxItem,
 } from "@nextui-org/react";
 import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import InputModal from "./components/InputModal";
-
-// import LanguageSelect from "./components/languageDropDown";
-// import FontSizeSelect from "./components/Fontsize";
-
+import DescriptionIcon from "@mui/icons-material/Description";
+import { ListboxWrapper } from "./components/ListWrapper";
+import InputModal from "./components/InputForn";
+import Extensions from "./components/Extensions";
 // const lang = {
 //   Python: {
 //     language: "python",
@@ -41,14 +40,9 @@ import InputModal from "./components/InputModal";
 //   },
 // };
 
-const socket = io("http://localhost:8000", {
-  autoConnect: false,
-});
-
 export default function Home() {
   const [fontSize, setFontSize] = useState(30);
   const editorRef = useRef(null);
-  // const [editorText, setEditorText] = useState("");
   const [currLanguage, setCurrLanguage] = useState(0);
   const [sizes, setsizes] = useState([350, "30%", "auto"]);
   const [nestedSizes, setNestedSizes] = useState([20, 80]);
@@ -56,35 +50,9 @@ export default function Home() {
   const [executionResult, setExecutionResult] = useState("");
   const [pane2Sizes, setPane2Sizes] = useState([50, 50]);
   const [isLoading, setIsLoading] = useState(false);
+
   // console.log(languageOptions);
   // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
-  if (editorRef.current != null) {
-    editorRef.current.onKeyDown(() => console.log("keyPress"));
-  }
-  useEffect(() => {
-    socket.connect();
-    socket.on("connect", () => {
-      console.log("socket.io connected successfully");
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    socket.on("text-update", (res) => {
-      console.log(res);
-      if (res !== editorRef.current.getValue()) {
-        const cursorInfo = editorRef.current.getPosition();
-        console.log(cursorInfo);
-        editorRef.current.setValue(res);
-        editorRef.current.setPosition(cursorInfo);
-      }
-    });
-  }, [socket]);
-  const handleEditorChange = (value, event) => {
-    socket.emit("code-value", value);
-  };
   const submitCode = () => {
     axios
       .post("http://localhost:2358/submissions", {
@@ -108,11 +76,10 @@ export default function Home() {
         return res.data.token;
       })
       .then((res) => {
-        console.log(editorRef.current.getPosition());
         setTimeout(() => {
           axios.get(`http://localhost:2358/submissions/${res}`).then((res) => {
-            setIsLoading(false);
             setExecutionResult(res.data.stdout);
+            setIsLoading(false);
           });
         }, 5000);
       });
@@ -168,7 +135,11 @@ export default function Home() {
             ))}
           </DropdownMenu>
         </Dropdown>
+
+        {/* <LanguageSelect /> */}
+
         <InputModal />
+
         <Button
           variant="bordered"
           className="ml-auto w-fit"
@@ -222,9 +193,8 @@ export default function Home() {
                 height="100vh"
                 path={languageOptions[currLanguage].name}
                 defaultLanguage={languageOptions[currLanguage].value}
-                defaultValue={languageOptions[currLanguage].boilerplateCode}
+                defaultValue={""}
                 onMount={(editor, monaco) => (editorRef.current = editor)}
-                onChange={handleEditorChange}
               />
             </Pane>
           </SplitPane>
@@ -255,22 +225,16 @@ export default function Home() {
             >
               {" "}
               {/* pane2b */}
-              {isLoading ? (
-                <Card className="h-full w-full">
-                  <CardBody className="flex justify-center items-center">
-                    <Spinner size="lg" />
-                  </CardBody>
-                </Card>
-              ) : (
-                <Textarea
-                  classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
-                  placeholder="Output"
-                  size="lg"
-                  fullWidth={true}
-                  value={executionResult}
-                  isReadOnly
-                />
-              )}
+              <Textarea
+                classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
+                placeholder="Output"
+                size="lg"
+                fullWidth={true}
+                value={executionResult}
+                isReadOnly
+              >
+                {isLoading ? <Spinner size="sm" /> : executionResult}
+              </Textarea>
             </Pane>
           </SplitPane>
         </SplitPane>
