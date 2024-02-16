@@ -48,6 +48,7 @@ const socket = io("http://localhost:8000", {
 export default function Home() {
   const [fontSize, setFontSize] = useState(30);
   const editorRef = useRef(null);
+  const currTimeStamp = useRef(Date.now());
   // const [editorText, setEditorText] = useState("");
   const [currLanguage, setCurrLanguage] = useState(0);
   const [sizes, setsizes] = useState([350, "30%", "auto"]);
@@ -58,9 +59,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   // console.log(languageOptions);
   // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
-  if (editorRef.current != null) {
-    editorRef.current.onKeyDown(() => console.log("keyPress"));
-  }
+
   useEffect(() => {
     socket.connect();
     socket.on("connect", () => {
@@ -72,9 +71,9 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    socket.on("text-update", (res) => {
-      console.log(res);
-      if (res !== editorRef.current.getValue()) {
+    socket.on("text-update", (res, timeStamp) => {
+      console.log(res, timeStamp, currTimeStamp.current);
+      if (timeStamp>currTimeStamp.current && res !== editorRef.current.getValue()) {
         const cursorInfo = editorRef.current.getPosition();
         console.log(cursorInfo);
         editorRef.current.setValue(res);
@@ -83,7 +82,8 @@ export default function Home() {
     });
   }, [socket]);
   const handleEditorChange = (value, event) => {
-    socket.emit("code-value", value);
+    currTimeStamp.current = Date.now();
+    socket.emit("code-value", value, currTimeStamp.current);
   };
   const submitCode = () => {
     axios
