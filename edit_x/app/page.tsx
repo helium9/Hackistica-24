@@ -14,7 +14,7 @@ import {
 import e from "express";
 
 
-
+let i = 0;
 const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 export default function Home() {
@@ -24,6 +24,8 @@ export default function Home() {
   const editorRef = useRef(null);
   const [document,setDocument] = useState("//some comment");
   const [location,setLocation] = useState(null);
+  const [newContent,setNewContent] = useState("");
+  const [message,setMessage] = useState("");
   function handleEditorDidMount(editor,monaco){
     editorRef.current = editor;
     console.log(editorRef.current?editorRef.current.getValue():"");
@@ -43,14 +45,7 @@ export default function Home() {
       // console.log(editorRef.current.getLineCount());
     }
   }
-  useEffect(()=>{
-    console.log("Hello")
-    if(editorRef.current){
-      console.log(editorRef.current.getValue());
-      // console.log(editorRef.current);
-      // console.log(editorRef.current.getPosition())
-    }
-  },[])
+
   function generateString(length){
     let result = ' ';
     const charactersLength = characters.length;
@@ -63,50 +58,79 @@ export default function Home() {
   const username = generateString(5);
 
   useEffect(()=>{
-    console.log(document);
+    setNewContent(document);  
     const socket = io.connect("http://localhost:8001");
+    // console.log(newContent);
     setSocketInstance(socket);
     socket.on('connect',()=>{
-      console.log(roomId);
-      socket.emit('join-room',{ roomId,username});
+      // console.log(roomId);
+      socket.emit('join-room',{roomId,username,document});
+      socket.on('initializing_document',(document)=>{
+        console.log(document);
+        setDocument(document);
+      })
     })
-    console.log("user joined");
+    // console.log("user joined");
     socket.on('user-joined',(username)=>{
       setUsers(prev => [...prev,username]);
       // alert(` congrated ${username} joined the room`)
       socket.emit('connected-users', users);
     })
-    console.log(document);
-    console.log((editorRef.current?editorRef.current.getValue():"no input yet"));
+    // console.log(document);
+    // console.log((editorRef.current?editorRef.current.getValue():"no input yet"));
     // socket.emit('get_document',{document: (editorRef.current? editorRef.current.getValue():"//some comment")} );
 
   },[]);
+  
   useEffect(()=>{
-    console.log("socketInstatnce");
+    console.log("Handle chages");
+    console.log(i);
+    
+    i++
+  })
+  useEffect(()=>{
+    console.log("-----------------------------------")
+    // console.log("socketInstatnce");
     // alert("handle change")
     // alert(socketInstance);
-    console.log("handle Changes");
+    // console.log("handle Changes");
     if(socketInstance){
-      console.log(socketInstance);
-      socketInstance.emit('get_document',{document,roomId});
+      // console.log(socketInstance);
+      socketInstance.emit('get_document',{document,roomId,location,username});
       // alert(`document: ${document}`);
-    }
-  },[handleChange]);
-  useEffect(()=>{
-    if(socketInstance){
+      // console.log(document);
+      if(editorRef.current){
+        setLocation(editorRef.current.getPosition());
+        // console.log(location);
+      }
       socketInstance.on('get_value',(content)=>{
-        console.log(content);
+        // console.log(content);
         if(editorRef.current){
-          console.log(editorRef.current.getValue());
-          setLocation(editorRef.current.getPosition());
-          // console.log(editorRef.current.getPosition());
+          // console.log(editorRef.current)
+          setDocument(content);
+          // editorRef.current.editor.setLocation(location);
           // editorRef.current.setValue(content);
-          // editorRef.current.setPosition(location);
-          console.log(content);
+
         }
       })
     }
+    setTimeout(()=>{setMessage("delay")},3000);
   },[handleChange]);
+  // useEffect(()=>{
+  //   if(socketInstance){
+  //     socketInstance.on('get_value',(content)=>{
+  //       console.log(content);
+  //       if(editorRef.current){
+  //         console.log(editorRef.current.getValue());
+  //         setLocation(editorRef.current.getPosition());
+  //         // console.log(editorRef.current.getPosition());
+  //         // editorRef.current.setValue(content);
+  //         // editorRef.current.setPosition(location);
+  //         console.log(content);
+  //       }
+  //     })
+  //   }
+  // },[handleChange]);
   // useEffect(()=>{
   //   if(socketInstance){
   //     console.log(socketInstance);
@@ -163,6 +187,7 @@ export default function Home() {
           defaultValue={ document}
           onChange = {handleChange}
           onMount = {handleEditorDidMount}
+          value = {document}
         />
         <div>
 
