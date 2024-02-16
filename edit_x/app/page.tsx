@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { languageOptions } from "./constants/languages";
 import {
+  Textarea,
   Button,
   Dropdown,
   DropdownTrigger,
@@ -20,7 +21,23 @@ import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import DescriptionIcon from "@mui/icons-material/Description";
+// import LanguageSelect from "./components/languageDropDown";
+// import FontSizeSelect from "./components/Fontsize";
+
+// const lang = {
+//   Python: {
+//     language: "python",
+//     value: `print("Hello there!")`,
+//   },
+//   HTML: {
+//     language: "html",
+//     value: "<div> </div>",
+//   },
+//   Javascript: {
+//     language: "javascript",
+//     value: `console.log("Hi")`,
+//   },
+// };
 
 export default function Home() {
   const [fontSize, setFontSize] = useState(30);
@@ -28,17 +45,12 @@ export default function Home() {
   const [currLanguage, setCurrLanguage] = useState(0);
   const [sizes, setsizes] = useState([350, "30%", "auto"]);
   const [nestedSizes, setNestedSizes] = useState([20, 80]);
-  const [pane2Sizes, setPane2Sizes] = useState([50, 50]);
   const [stdinValue, setStdinValue] = useState("");
   const [executionResult, setExecutionResult] = useState("");
+  const [pane2Sizes, setPane2Sizes] = useState([50, 50]);
 
-  const layoutCSS = {
-    height: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  };
-
+  // console.log(languageOptions);
+  // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
   const submitCode = () => {
     axios
       .post("http://localhost:2358/submissions", {
@@ -110,16 +122,14 @@ export default function Home() {
             aria-label="Static Actions"
             classNames={{ base: "h-96 overflow-auto scrollbar-hide" }}
           >
-            {languageOptions.map((Lang, index) => {
-              return (
-                <DropdownItem
-                  key={Lang.id}
-                  onPress={() => setCurrLanguage(index)}
-                >
-                  {Lang.name}
-                </DropdownItem>
-              );
-            })}
+            {languageOptions.map((Lang, index) => (
+              <DropdownItem
+                key={Lang.id}
+                onPress={() => setCurrLanguage(index)}
+              >
+                {Lang.name}
+              </DropdownItem>
+            ))}
           </DropdownMenu>
         </Dropdown>
 
@@ -149,24 +159,10 @@ export default function Home() {
             sashRender={() => <div className="sash" />}
           >
             <Pane
-              style={{ ...layoutCSS }}
+              className="p-4 flex justify-center items-center h-full"
               minSize={200}
-              className="bg-gray-900"
             >
-              <div className="p-4 overflow-y-auto h-full flex flex-col space-y-2">
-                <div className="flex item-center space-x-2 text-white">
-                  <DescriptionIcon />
-                  <p>Log Entry 1</p>
-                </div>
-                <div className="flex item-center space-x-2 text-white">
-                  <DescriptionIcon />
-                  <p>Log Entry 1</p>
-                </div>
-                <div className="flex item-center space-x-2 text-white">
-                  <DescriptionIcon />
-                  <p>Log Entry 1</p>
-                </div>
-              </div>
+              pane1
             </Pane>
             <Pane minSize={200}>
               <Editor
@@ -187,20 +183,35 @@ export default function Home() {
             onChange={setPane2Sizes}
             sashRender={() => <div className="sash" />}
           >
-            <Pane style={{ ...layoutCSS, background: "#A9A9A9" }} minSize={100}>
+            <Pane
+              className="p-4 pr-2 flex justify-center items-center h-full"
+              minSize={100}
+            >
               {" "}
               {/*  pane2a */}
-              <textarea
-                id="stdinInput"
-                style={{ width: "100%", height: "100%", resize: "none" }}
+              <Textarea
+                classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
+                placeholder="Input"
+                size="lg"
+                fullWidth={true}
                 value={stdinValue}
-                onChange={(e) => setStdinValue(e.target.value)}
+                onValueChange={setStdinValue}
               />
             </Pane>
-            <Pane style={{ ...layoutCSS, background: "#a1a5a9" }} minSize={100}>
+            <Pane
+              className="p-4 pl-2 flex justify-center items-center h-full"
+              minSize={100}
+            >
               {" "}
               {/* pane2b */}
-              <pre>{executionResult}</pre>
+              <Textarea
+                classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
+                placeholder="Output"
+                size="lg"
+                fullWidth={true}
+                value={executionResult}
+                isReadOnly
+              />
             </Pane>
           </SplitPane>
         </SplitPane>
