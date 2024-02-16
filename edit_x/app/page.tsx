@@ -3,7 +3,7 @@ import Editor from "@monaco-editor/react";
 import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { languageOptions } from "./constants/languages";
+import { languageOptions } from "./Constants/languages";
 import {
   Textarea,
   Button,
@@ -21,9 +21,10 @@ import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-// import LanguageSelect from "./components/languageDropDown";
-// import FontSizeSelect from "./components/Fontsize";
-
+import DescriptionIcon from "@mui/icons-material/Description";
+import { ListboxWrapper } from "./components/ListWrapper";
+import InputModal from "./components/InputForn";
+import Extensions from "./components/Extensions";
 // const lang = {
 //   Python: {
 //     language: "python",
@@ -48,6 +49,7 @@ export default function Home() {
   const [stdinValue, setStdinValue] = useState("");
   const [executionResult, setExecutionResult] = useState("");
   const [pane2Sizes, setPane2Sizes] = useState([50, 50]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // console.log(languageOptions);
   // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
@@ -75,9 +77,10 @@ export default function Home() {
       })
       .then((res) => {
         setTimeout(() => {
-          axios
-            .get(`http://localhost:2358/submissions/${res}`)
-            .then((res) => setExecutionResult(res.data.stdout));
+          axios.get(`http://localhost:2358/submissions/${res}`).then((res) => {
+            setExecutionResult(res.data.stdout);
+            setIsLoading(false);
+          });
         }, 5000);
       });
   };
@@ -135,10 +138,15 @@ export default function Home() {
 
         {/* <LanguageSelect /> */}
 
+        <InputModal />
+
         <Button
           variant="bordered"
           className="ml-auto w-fit"
-          onPress={submitCode}
+          onPress={() => {
+            setIsLoading(true);
+            submitCode();
+          }}
         >
           {/* <Spinner/> */}
           <PlayArrow />
@@ -159,12 +167,25 @@ export default function Home() {
             sashRender={() => <div className="sash" />}
           >
             <Pane
-              className="p-4 flex justify-center items-center h-full"
               minSize={200}
+              className="bg-gray-900 rounded-lg p-4 overflow-auto scrollbar-hide"
             >
-              pane1
+              {/* <ListboxWrapper>
+                <Listbox>
+                  <ListboxItem key="new">
+                    <DescriptionIcon className="mr-2" /> New file
+                  </ListboxItem>
+                  <ListboxItem key="copy">
+                    <DescriptionIcon className="mr-2" /> Copy link
+                  </ListboxItem>
+                  <ListboxItem key="edit">
+                    <DescriptionIcon className="mr-2" /> Edit file
+                  </ListboxItem>
+                </Listbox>
+              </ListboxWrapper> */}
+              <Extensions />
             </Pane>
-            <Pane minSize={200}>
+            <Pane className="flex" minSize={200}>
               <Editor
                 options={{ fontSize: fontSize }}
                 width="100%"
@@ -211,7 +232,9 @@ export default function Home() {
                 fullWidth={true}
                 value={executionResult}
                 isReadOnly
-              />
+              >
+                {isLoading ? <Spinner size="sm" /> : executionResult}
+              </Textarea>
             </Pane>
           </SplitPane>
         </SplitPane>
