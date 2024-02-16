@@ -1,6 +1,6 @@
 "use client";
 import Editor from "@monaco-editor/react";
-import {io} from "socket.io-client";
+import { io } from "socket.io-client";
 import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
@@ -14,12 +14,14 @@ import {
   DropdownSection,
   DropdownItem,
   Spinner,
+  Card,
+  CardBody,
 } from "@nextui-org/react";
 import SplitPane, { Pane } from "split-pane-react";
 import "split-pane-react/esm/themes/default.css";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-
+import InputModal from "./components/InputModal";
 
 // import LanguageSelect from "./components/languageDropDown";
 // import FontSizeSelect from "./components/Fontsize";
@@ -40,7 +42,7 @@ import "react-resizable/css/styles.css";
 // };
 
 const socket = io("http://localhost:8000", {
-  autoConnect: false
+  autoConnect: false,
 });
 
 export default function Home() {
@@ -53,27 +55,26 @@ export default function Home() {
   const [stdinValue, setStdinValue] = useState("");
   const [executionResult, setExecutionResult] = useState("");
   const [pane2Sizes, setPane2Sizes] = useState([50, 50]);
-  
+  const [isLoading, setIsLoading] = useState(false);
   // console.log(languageOptions);
   // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
-  if(editorRef.current!=null){
-    editorRef.current.onKeyDown(()=>console.log("keyPress"));
+  if (editorRef.current != null) {
+    editorRef.current.onKeyDown(() => console.log("keyPress"));
   }
-  useEffect(()=>{
+  useEffect(() => {
     socket.connect();
-    socket.on("connect", ()=>{
+    socket.on("connect", () => {
       console.log("socket.io connected successfully");
     });
     return () => {
       socket.disconnect();
     };
   }, []);
-  
-  useEffect(()=>{
-    socket.on("text-update", (res)=>{
+
+  useEffect(() => {
+    socket.on("text-update", (res) => {
       console.log(res);
-      if(res!==editorRef.current.getValue())
-      { 
+      if (res !== editorRef.current.getValue()) {
         const cursorInfo = editorRef.current.getPosition();
         console.log(cursorInfo);
         editorRef.current.setValue(res);
@@ -81,9 +82,9 @@ export default function Home() {
       }
     });
   }, [socket]);
-  const handleEditorChange = (value, event)=>{
+  const handleEditorChange = (value, event) => {
     socket.emit("code-value", value);
-  }
+  };
   const submitCode = () => {
     axios
       .post("http://localhost:2358/submissions", {
@@ -109,9 +110,10 @@ export default function Home() {
       .then((res) => {
         console.log(editorRef.current.getPosition());
         setTimeout(() => {
-          axios
-            .get(`http://localhost:2358/submissions/${res}`)
-            .then((res) => setExecutionResult(res.data.stdout));
+          axios.get(`http://localhost:2358/submissions/${res}`).then((res) => {
+            setIsLoading(false);
+            setExecutionResult(res.data.stdout);
+          });
         }, 5000);
       });
   };
@@ -161,10 +163,14 @@ export default function Home() {
             ))}
           </DropdownMenu>
         </Dropdown>
+        <InputModal />
         <Button
           variant="bordered"
           className="ml-auto w-fit"
-          onPress={submitCode}
+          onPress={() => {
+            setIsLoading(true);
+            submitCode();
+          }}
         >
           {/* <Spinner/> */}
           <PlayArrow />
@@ -198,7 +204,7 @@ export default function Home() {
                 height="100vh"
                 path={languageOptions[currLanguage].name}
                 defaultLanguage={languageOptions[currLanguage].value}
-                defaultValue={""}
+                defaultValue={languageOptions[currLanguage].boilerplateCode}
                 onMount={(editor, monaco) => (editorRef.current = editor)}
                 onChange={handleEditorChange}
               />
@@ -231,6 +237,13 @@ export default function Home() {
             >
               {" "}
               {/* pane2b */}
+              {(isLoading)?(
+              <Card className="h-full w-full">
+                <CardBody className="flex justify-center items-center">
+                <Spinner size="lg" />
+                </CardBody>
+              </Card>
+              ):(
               <Textarea
                 classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
                 placeholder="Output"
@@ -239,6 +252,7 @@ export default function Home() {
                 value={executionResult}
                 isReadOnly
               />
+              )}
             </Pane>
           </SplitPane>
         </SplitPane>
