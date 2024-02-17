@@ -68,16 +68,35 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   // console.log(languageOptions);
   // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
+  const chek=async ()=>{
+    console.log("gygyy",session?.user)
 
-  useEffect(() => {
+    const response = await fetch(`/api/checkuser`,
+    {method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({content:session?.user})});
+    const data=await response.json();
+    console.log(data)
+    
+    return data
+  }
+  useEffect( () => {
     socket.connect();
     socket.on("connect", () => {
+      console.log("checker");
+    chek();
       console.log("socket.io connected successfully");
     });
+    
+
+    
+
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [session?.user]);
 
   useEffect(() => {
     socket.on("text-update", (res, timeStamp) => {
@@ -94,6 +113,21 @@ export default function Home() {
     currTimeStamp.current = Date.now();
     socket.emit("code-value", value, currTimeStamp.current);
   };
+  const func=async ()=>{
+
+    console.log("on func")
+    
+
+    const response = await fetch(`/api/test12`,
+    {method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({content:"hiiji"})})
+    console.log("er",response)
+    const data=await response.json();
+    return data;
+  }
   const submitCode = () => {
     axios
       .post("http://localhost:2358/submissions", {
@@ -265,6 +299,7 @@ export default function Home() {
             </Pane>
           </SplitPane>
         </SplitPane>
+        <Button onPress={func}>clickkk</Button>
       </div>
     </main>
   );
