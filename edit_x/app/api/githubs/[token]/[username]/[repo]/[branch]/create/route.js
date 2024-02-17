@@ -13,6 +13,7 @@ export const GET=async(request,{params})=>{
         auth:params.token,
       });
       console.log(octokit)
+      
 
     const commits=  await octokit.request('GET /repos/{owner}/{repo}/commits', {
         owner: params.username,

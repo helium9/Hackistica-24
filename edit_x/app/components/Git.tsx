@@ -25,7 +25,7 @@ interface Props {
 export default function Git(prop) {
 
 
-  const [files,setfiles]=useState({content:[{path:"myfile",content:prop.filename,encoding:"utf-8"},{path:"hiu",content:"This is y",encoding:"utf-8"}]});
+  const [files,setfiles]=useState({content:[{path:"myfile",content:prop.filename,encoding:"utf-8"}]});
   const [branch1,setbranch1]=useState("main");
   const [branch2,setbranch2]=useState("another");
   const [token_git,settoken_git]=useState("");
@@ -34,6 +34,7 @@ export default function Git(prop) {
   const [username,setusername]=useState("");
   const inputref=useRef(null);
   const [activated,setactivated]=useState(false);
+  const [filenames,setfilenames]=useState("");
   
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
@@ -63,26 +64,14 @@ export default function Git(prop) {
     
   }
   const commit_func=async ()=>{
-    // settoken_git(process.env.NEXT_PUBLIC_API_GITHUB_TOKEN);
-    // setusername("xenom2004");
-    // setrepo("hackistica_test");
-    console.log(token_git);
-    console.log(repo);
-    console.log(username);
-    console.log(branch);
-
-
-   
-    // connectToMongoDB();
-    console.log("client",files);
-    console.log(JSON.stringify(files));
+    console.log(username,token_git,repo,branch);
 
     const response = await fetch(`/api/githubs/${token_git}/${username}/${repo}/${branch}/commit`,
     {method: 'POST',
     headers: {
         'Content-Type': 'application/json'
     },
-    body: JSON.stringify(files)})
+    body: JSON.stringify({content:[{path:filenames,content:prop.filename,encoding:"utf-8"}]})})
     const data=await response.json();
     console.log(data)
     alert(data.message);
@@ -94,6 +83,8 @@ export default function Git(prop) {
     // });
     
   }
+
+  
 
   const merge_func=async ()=>{
 
@@ -156,16 +147,12 @@ export default function Git(prop) {
         </Button>)}
 
         {activated && (<div className="flex flex-col gap-4">
+       
         <Button onPress={commit_func} variant="bordered" className="w-fit">
-              commit
-            </Button>
-        <Button onPress={activate} variant="bordered" className="w-fit">
               push
             </Button>
 
-        <Button onPress={activate} variant="bordered" className="w-fit">
-          pull
-          </Button>    
+            
 
 
         </div>)} 
@@ -206,7 +193,13 @@ export default function Git(prop) {
                       placeholder="Enter the Branch where all th files will be updated"
                       className="max-w-xs"
                       onChange={(e) => setbranch(e.target.value)}
-                    />         
+                    />    
+              <Textarea
+                      label="file name "
+                      placeholder="Enter file name that you want to update/create"
+                      className="max-w-xs"
+                      onChange={(e) => setfilenames(e.target.value)}
+                    />            
                           
                
                 
