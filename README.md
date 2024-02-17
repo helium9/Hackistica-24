@@ -3,6 +3,8 @@
 Its an all functionalble code editor featuring 40 different programming languages.Integrated with live server and nextauth system.The frontend includes login using github/google oauth.Frontend includes editor panes
 and output and input panes.use the run button to process the code writen in the file.
 
+![alt text]( https://github.com/helium9/Hackistica-26.git/blob/main/image.jpg?raw=true)
+
 ## Installation
 
 clone the repository
