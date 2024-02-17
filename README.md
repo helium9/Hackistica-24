@@ -30,7 +30,9 @@ npm run dev
 ```
 
 For setting the docker application
+
 first install [docker](https://choosealicense.com/licenses/mit/) and [doker compose](https://docs.docker.com/compose)
+in the server directory
 ```
 cd judge0-v1.13.0
 docker-compose up -d db redis
