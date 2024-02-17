@@ -28,6 +28,15 @@ go to Edit_X directory and run following--
 ```bash
 npm run dev
 ```
+To use the Application Create a .env.local file in the root directory of the Application and Use token 
+```
+NEXTAUTH_SECRET
+GITHUB_SECRET
+GITHUB_ID
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+MONGO_DB_URI
+```
 
 For setting the docker application
 
