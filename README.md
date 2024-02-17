@@ -7,7 +7,7 @@ and output and input panes.use the run button to process the code writen in the 
 
 clone the repository
 ```bash
-git clone <repo_link>
+git clone https://github.com/helium9/Hackistica-26.git
 ```
 
 go to the Edit_X directory and run npm install
@@ -44,6 +44,10 @@ docker-compose up -d
 wait for 1 minute and run
 
 ```docker ps ```
+
+or look for the port in docker desktop
+
+then go to localhost:{port}/about or localhost:{post}/dummy-client.html
 
 
 
