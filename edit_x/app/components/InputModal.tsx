@@ -13,6 +13,7 @@ import {
   Card,
   CardBody,
 } from "@nextui-org/react";
+import { ContentCopy } from "@mui/icons-material";
 
 export default function InputModal() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -29,13 +30,21 @@ export default function InputModal() {
               <ModalHeader className="flex flex-col gap-1">
                 Join or Create Room
               </ModalHeader>
-              <Card fullWidth={false} className="m-4">
-                <CardBody>
-                  <p>Your Id:</p>
-                </CardBody>
-              </Card>
 
               <ModalBody>
+                <Input
+                  variant="bordered"
+                  isReadOnly
+                  type="email"
+                  label="ID"
+                  defaultValue="junior@nextui.org"
+                  endContent={
+                    <ContentCopy
+                      className="text-2xl m-2 pt-1"
+                      sx={{ color: "#757575" }}
+                    />
+                  }
+                />
                 <Input
                   autoFocus
                   label="Id"

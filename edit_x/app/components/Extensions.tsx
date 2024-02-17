@@ -1,3 +1,24 @@
+import React from "react";
+import {
+  Listbox,
+  ListboxItem,
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Divider,
+  Link,
+  Image,
+  Input,
+  Button,
+} from "@nextui-org/react";
+import { ListboxWrapper } from "./ListboxWrapper";
+
+interface Props {
+  name: string;
+  age: number;
+}
+
 export const languageOptions = [
   {
     id: 63,
@@ -340,3 +361,93 @@ export const languageOptions = [
     boilerplateCode: 'Console.WriteLine("Hello, world!");',
   },
 ];
+function generate(id: number, name: string, des: string): JSX.Element {
+  return (
+    <ListboxItem key={id}>
+      <Card fullWidth={true} className="w-full">
+        <CardHeader className="flex gap-3">
+          {/* <Image
+            alt="nextui logo"
+            height={40}
+            radius="sm"
+            src="https://avatars.githubusercontent.com/u/86160567?s=200&v=4"
+            width={40}
+          /> */}
+          <div className="flex flex-col">
+            <p className="text-md">language</p>
+            <p className="text-small text-default-500">{name}</p>
+          </div>
+        </CardHeader>
+        <Divider />
+        <CardBody>
+          <p className="h-12 text-wrap overflow-auto scrollbar-hide">{des}</p>
+        </CardBody>
+        <Divider />
+        <CardFooter>
+          {/* <Link
+            isExternal
+            showAnchorIcon
+            href="https://github.com/nextui-org/nextui"
+          >
+            Website
+          </Link> */}
+          <div className="flex gap-3">
+            <Button size="sm">enable</Button>
+            <Button size="sm">disable</Button>
+          </div>
+        </CardFooter>
+      </Card>
+    </ListboxItem>
+  );
+}
+export default function Extension() {
+  return (
+    <main>
+      <div>
+        <Input
+          label="Search"
+          isClearable
+          radius="lg"
+          classNames={{
+            base: "sticky top-0",
+            label: "text-black/50 dark:text-white/90",
+            input: [
+              "bg-transparent",
+              "text-black/90 dark:text-white/90",
+              "placeholder:text-default-700/50 dark:placeholder:text-white/60",
+            ],
+            innerWrapper: "bg-transparent",
+            inputWrapper: [
+              "shadow-xl",
+              "bg-default-200/50",
+              "dark:bg-default/60",
+              "backdrop-blur-xl",
+              "backdrop-saturate-200",
+              "hover:bg-default-200/70",
+              "dark:hover:bg-default/70",
+              "group-data-[focused=true]:bg-default-200/50",
+              "dark:group-data-[focused=true]:bg-default/60",
+              "!cursor-text",
+              "rounded-r-lg",
+              "rounded-l-none",
+            ],
+          }}
+          placeholder="Type to search..."
+        />
+      </div>
+
+      <ListboxWrapper>
+        <Listbox
+          aria-label="Example with disabled actions"
+          disabledKeys={["edit", "delete"]}
+          className="w-full overflow-auto scrollbar-hide"
+        >
+          <ListboxItem key="search"></ListboxItem>
+          {languageOptions.map(({ id, name, label }) =>
+            generate(id, name, label)
+          )}
+        </Listbox>
+      </ListboxWrapper>
+    </main>
+  );
+}
