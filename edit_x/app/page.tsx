@@ -4,6 +4,8 @@ import { io } from "socket.io-client";
 import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { languageOptions } from "./constants/languages";
 import {
   Textarea,
@@ -46,6 +48,13 @@ const socket = io("http://localhost:8000", {
 });
 
 export default function Home() {
+  const {data: session} = useSession({
+    required: true,
+    onUnauthenticated(){
+      redirect('api/auth/signin');
+    }
+  });
+  console.log(session?.user);
   const [fontSize, setFontSize] = useState(30);
   const editorRef = useRef(null);
   const currTimeStamp = useRef(Date.now());
@@ -73,7 +82,7 @@ export default function Home() {
   useEffect(() => {
     socket.on("text-update", (res, timeStamp) => {
       console.log(res, timeStamp, currTimeStamp.current);
-      if (timeStamp>currTimeStamp.current && res !== editorRef.current.getValue()) {
+      if (timeStamp>currTimeStamp.current && res !== editorRef.current.getValue()) { //timestamp saved from infinite loop glitch on continous character press
         const cursorInfo = editorRef.current.getPosition();
         console.log(cursorInfo);
         editorRef.current.setValue(res);
