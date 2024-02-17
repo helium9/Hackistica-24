@@ -1,10 +1,12 @@
 "use client";
 import Editor from "@monaco-editor/react";
+import Filemanager from "./components/Filemanager"
 import { io } from "socket.io-client";
+import Link from 'next/link';
 import { PlayArrow } from "@mui/icons-material";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { languageOptions } from "./constants/languages";
@@ -52,38 +54,33 @@ import LaptopMacIcon from "@mui/icons-material/LaptopMac";
 //   },
 // };
 
+
+
+
 const socket = io("http://localhost:8000", {
   autoConnect: false,
 });
 
 export default function Home() {
-  const {data: session} = useSession({
+  const { data: session } = useSession({
     required: true,
-    onUnauthenticated(){
+    onUnauthenticated() {
       redirect('api/auth/signin');
     }
   });
-  console.log(session?.user);
-  const [files,setfiles]=useState({content:[{path:"ne",content:"hiu  updated",encoding:"utf-8"},{path:"hiu",content:"This is y",encoding:"utf-8"}]});
-  const [branch1,setbranch1]=useState("main");
-  const [branch2,setbranch2]=useState("yu");
-  const [token_git,settoken_git]=useState("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");
-  const [repo,setrepo]=useState("hackistica_test");
-  const [branch,setbranch]=useState("main2");
-  const [username,setusername]=useState("xenom2004");
-  const inputref=useRef(null);
-  const [activated,setactivated]=useState(false);
+  // console.log(session?.user);
 
   const [fontSize, setFontSize] = useState(30);
   const editorRef = useRef(null);
   const currTimeStamp = useRef(Date.now());
   // const [editorText, setEditorText] = useState("");
- 
+
 
 
 
   // const [fontSize, setFontSize] = useState(30);
   // const editorRef = useRef(null);
+  const [roomID, setRoomID] = useState("");
   const [currLanguage, setCurrLanguage] = useState(0);
   const [sizes, setsizes] = useState([100, "30%", "auto"]);
   const [nestedSizes, setNestedSizes] = useState([70, 30]);
@@ -99,151 +96,60 @@ export default function Home() {
   ]);
 
 
-  if (editorRef.current != null) {
-    editorRef.current.onKeyDown(() => console.log("keyPress"));
-  }
   // console.log(languageOptions);
   // console.log((editorRef.current==null)?("null"):(editorRef.current.getValue()));
 
   // github tasks
-  const onCloses=async ()=>{
-
-    console.log(token_git, username, repo);
-    const response = await fetch(`/api/githubs/${token_git}/${username}/${repo}/${branch}/create`).then(
-      response => response.json())
-    .then(data =>{
-      console.log(data);
-
-      if(data.status==200){
-        inputref.current.click();
-      }
-      else{
-      setactivated(true);
-      inputref.current.click();} 
-    })
-    .catch(error => {
-      inputref.current.click();
-      console.error(error)});
-  }
-  const activate = async  ()=>{
-    onOpen();
-    
-    
-  }
-  const commit_func=async ()=>{
-    // settoken_git(process.env.NEXT_PUBLIC_API_GITHUB_TOKEN);
-    // setusername("xenom2004");
-    // setrepo("hackistica_test");
-    console.log(token_git);
-    console.log(repo);
-    console.log(username);
-    console.log(branch);
-
-
-   
-    // connectToMongoDB();
-    console.log("client",files);
-    console.log(JSON.stringify(files));
-
-    const response = await fetch(`/api/githubs/${token_git}/${username}/${repo}/${branch}/commit`,
-    {method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(files)})
-    const data=await response.json();
-    console.log(data)
-    alert(data.message);
-    return data
-    
-
-    // Useraccount.createCollection().then(function (collection) { 
-    //   console.log('Collection is created!'); 
-    // });
-    
-  }
-
-  const merge_func=async ()=>{
-
-    console.log(token_git);
-    console.log(repo);
-    console.log(username);
-    console.log(branch);
-
-
-   
-    // connectToMongoDB();
-    // console.log("client",files);
-    // console.log(JSON.stringify(files));
-
-    const response = await fetch(`/api/githubs/${token_git}/${username}/${repo}/${branch}/merge`,
-    {method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({content:[branch1,branch2]})})
-    const data=await response.json();
-    console.log(data)
-    alert(data.message);
-    return data
-    
-  }
-
-  const list_branch_func=async ()=>{
-    const response = await fetch(`/api/githubs/${token_git}/${username}/${repo}/${branch}/listBranch`).then(
-      response => response.json())
-    .then(data =>{
-      console.log(data);
-    })
-    .catch(error => {
-      
-      console.error(error)});
-  }
-
-
- 
-  
 
 
 
 
 
-  const chek=async ()=>{
-    console.log("gygyy",session?.user)
+
+
+  const chek = async () => {
+    // console.log("gygyy",session?.user)
 
     const response = await fetch(`/api/checkuser`,
-    {method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({content:session?.user})});
-    const data=await response.json();
-    console.log(data)
-    
-    return data
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: session?.user })
+      });
+    const data = await response.json();
+    // console.log(data)
+
+    return data;
   }
-  useEffect( () => {
+  useEffect(() => {
+    chek();
+  }, [session?.user]);
+
+
+  useEffect(() => {
     socket.connect();
     socket.on("connect", () => {
-      console.log("checker");
-    chek();
-      console.log("socket.io connected successfully");
+      // console.log("checker");
+
+      // console.log("socket.io connected successfully");
     });
-    
-
-    
-
     return () => {
       socket.disconnect();
     };
-  }, [session?.user]);
+  }, []);
+
+  useEffect(() => {
+    if (roomID !== "") socket.emit("join-room", roomID);
+  }, [roomID]);
 
   useEffect(() => {
     socket.on("text-update", (res, timeStamp) => {
-      console.log(res, timeStamp, currTimeStamp.current);
-      if (timeStamp>currTimeStamp.current && res !== editorRef.current.getValue()) { //timestamp saved from infinite loop glitch on continous character press
+      // console.log(res, timeStamp, currTimeStamp.current);
+      if (timeStamp > currTimeStamp.current && res !== editorRef.current.getValue()) { //timestamp saved from infinite loop glitch on continous character press
         const cursorInfo = editorRef.current.getPosition();
-        console.log(cursorInfo);
+        // console.log(cursorInfo);
         editorRef.current.setValue(res);
         editorRef.current.setPosition(cursorInfo);
       }
@@ -251,21 +157,23 @@ export default function Home() {
   }, [socket]);
   const handleEditorChange = (value, event) => {
     currTimeStamp.current = Date.now();
-    socket.emit("code-value", value, currTimeStamp.current);
+    socket.emit("code-value", value, roomID, currTimeStamp.current);
   };
-  const func=async ()=>{
+  const func = async () => {
 
-    console.log("on func")
-    
+    // console.log("on func")
+
 
     const response = await fetch(`/api/test12`,
-    {method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({content:"hiiji"})})
-    console.log("er",response)
-    const data=await response.json();
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: "hiiji" })
+      })
+    console.log("er", response)
+    const data = await response.json();
     return data;
   }
   const submitCode = () => {
@@ -309,153 +217,17 @@ export default function Home() {
     setActiveComponent("extension");
   };
 
+  const handleFilemangerPress = () => {
+    setActiveComponent("filemanager");
+  };
+
+
   const toggleLayout = () => {
     setIsLayoutVertical(!isLayoutVertical);
   };
 
-
   return (
-    // <main>
-    //   <div className="flex flex-row gap-4 items-center p-2">
-    //     <span>Editor v0.1</span>
-    //     <Dropdown>
-    //       <DropdownTrigger>
-    //         <Button variant="bordered" className="w-fit">
-    //           Font Size: {fontSize}
-    //         </Button>
-    //       </DropdownTrigger>
-    //       <DropdownMenu aria-label="Static Actions">
-    //         <DropdownItem key="20" onPress={() => setFontSize(20)}>
-    //           20
-    //         </DropdownItem>
-    //         <DropdownItem key="30" onPress={() => setFontSize(30)}>
-    //           30
-    //         </DropdownItem>
-    //         <DropdownItem key="40" onPress={() => setFontSize(40)}>
-    //           40
-    //         </DropdownItem>
-    //         <DropdownItem key="80" onPress={() => setFontSize(80)}>
-    //           It's fucking big
-    //         </DropdownItem>
-    //       </DropdownMenu>
-    //     </Dropdown>
 
-    //     <Dropdown>
-    //       <DropdownTrigger>
-    //         <Button variant="bordered" className="w-fit">
-    //           {languageOptions[currLanguage].name}
-    //         </Button>
-    //       </DropdownTrigger>
-    //       <DropdownMenu
-    //         aria-label="Static Actions"
-    //         classNames={{ base: "h-96 overflow-auto scrollbar-hide" }}
-    //       >
-    //         {languageOptions.map((Lang, index) => (
-    //           <DropdownItem
-    //             key={Lang.id}
-    //             onPress={() => setCurrLanguage(index)}
-    //           >
-    //             {Lang.name}
-    //           </DropdownItem>
-    //         ))}
-    //       </DropdownMenu>
-    //     </Dropdown>
-    //     <InputModal />
-    //     <Button
-    //       variant="bordered"
-    //       className="ml-auto w-fit"
-    //       onPress={() => {
-    //         setIsLoading(true);
-    //         submitCode();
-    //       }}
-    //     >
-    //       {/* <Spinner/> */}
-    //       <PlayArrow />
-    //     </Button>
-    //   </div>
-
-    //   <div style={{ height: "92.5vh" }}>
-    //     <SplitPane
-    //       split="horizontal"
-    //       sizes={sizes}
-    //       onChange={setsizes}
-    //       sashRender={() => <div className="sash" />}
-    //     >
-    //       <SplitPane
-    //         split="vertical"
-    //         sizes={nestedSizes}
-    //         onChange={setNestedSizes}
-    //         sashRender={() => <div className="sash" />}
-    //       >
-    //         <Pane
-    //           className="p-4 flex justify-center items-center h-full"
-    //           minSize={200}
-    //         >
-    //           pane1
-    //         </Pane>
-    //         <Pane minSize={200}>
-    //           <Editor
-    //             options={{ fontSize: fontSize }}
-    //             width="100%"
-    //             theme="vs-dark"
-    //             height="100vh"
-    //             path={languageOptions[currLanguage].name}
-    //             defaultLanguage={languageOptions[currLanguage].value}
-    //             defaultValue={languageOptions[currLanguage].boilerplateCode}
-    //             onMount={(editor, monaco) => (editorRef.current = editor)}
-    //             onChange={handleEditorChange}
-    //           />
-    //         </Pane>
-    //       </SplitPane>
-    //       <SplitPane
-    //         split="vertical"
-    //         sizes={pane2Sizes}
-    //         onChange={setPane2Sizes}
-    //         sashRender={() => <div className="sash" />}
-    //       >
-    //         <Pane
-    //           className="p-4 pr-2 flex justify-center items-center h-full"
-    //           minSize={100}
-    //         >
-    //           {" "}
-    //           {/*  pane2a */}
-    //           <Textarea
-    //             classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
-    //             placeholder="Input"
-    //             size="lg"
-    //             fullWidth={true}
-    //             value={stdinValue}
-    //             onValueChange={setStdinValue}
-    //           />
-    //         </Pane>
-    //         <Pane
-    //           className="p-4 pl-2 flex justify-center items-center h-full"
-    //           minSize={100}
-    //         >
-    //           {" "}
-    //           {/* pane2b */}
-    //           {(isLoading)?(
-    //           <Card className="h-full w-full">
-    //             <CardBody className="flex justify-center items-center">
-    //             <Spinner size="lg" />
-    //             </CardBody>
-    //           </Card>
-    //           ):(
-    //           <Textarea
-    //             classNames={{ base: "h-full", innerWrapper: "h-lvh" }}
-    //             placeholder="Output"
-    //             size="lg"
-    //             fullWidth={true}
-    //             value={executionResult}
-    //             isReadOnly
-    //           />
-    //           )}
-    //         </Pane>
-    //       </SplitPane>
-    //     </SplitPane>
-    //     <Button onPress={func}>clickkk</Button>
-    //   </div>
-    // </main>
     <main>
       <div className=" sm:hidden h-screen flex  flex-col justify-center items-center bg-gradient-to-r from-zinc-800 via-zinc-500 to-slate-400">
         <LaptopMacIcon className="text-9xl mb-4" />
@@ -473,6 +245,9 @@ export default function Home() {
               </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="Static Actions">
+              <DropdownItem key="16" onPress={() => setFontSize(20)}>
+                16
+              </DropdownItem>
               <DropdownItem key="20" onPress={() => setFontSize(20)}>
                 20
               </DropdownItem>
@@ -483,7 +258,7 @@ export default function Home() {
                 40
               </DropdownItem>
               <DropdownItem key="80" onPress={() => setFontSize(80)}>
-                It's fucking big
+                80
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>
@@ -508,7 +283,7 @@ export default function Home() {
               ))}
             </DropdownMenu>
           </Dropdown>
-          <InputModal />
+          <InputModal setRoomID={setRoomID} roomID={roomID} />
           <Button
             variant="bordered"
             className="ml-auto w-fit"
@@ -521,6 +296,9 @@ export default function Home() {
             <PlayArrow />
           </Button>
           <Button onClick={toggleLayout}>Change layout</Button>
+          <Button><Link href="/api/auth/signout">
+            Sign Out
+          </Link></Button>
         </div>
 
         <div style={{ height: "92.5vh" }}>
@@ -550,13 +328,20 @@ export default function Home() {
                     }
                   >
                     <Button
+
+
                       isIconOnly
                       aria-label="Like"
                       className="mt-2 bg-[#71717a]"
                       variant="shadow"
+                      onPress={handleFilemangerPress}
                     >
                       <InsertDriveFileIcon />
                     </Button>
+
+
+
+
                   </Tooltip>
                   <Tooltip
                     placement="right"
@@ -571,6 +356,7 @@ export default function Home() {
                       </div>
                     }
                   >
+
                     <Button
                       isIconOnly
                       aria-label="Like"
@@ -604,8 +390,9 @@ export default function Home() {
                   </Tooltip>
                 </div>
                 <div className="h-full w-full rounded-r-lg bg-[#1d1d20] overflow-auto scrollbar-hide">
-                  {activeComponent === "git" && <Git />}
+                  {activeComponent === "git" && <Git filecontent={editorRef.current} />}
                   {activeComponent === "extension" && <Extension />}
+                  {activeComponent === "filemanager" && <Filemanager />}
                 </div>
               </Pane>
               <SplitPane
@@ -756,8 +543,9 @@ export default function Home() {
                   </Tooltip>
                 </div>
                 <div className="h-full w-full rounded-r-lg bg-[#1d1d20] overflow-auto scrollbar-hide">
-                  {activeComponent === "git" && <Git />}
+                  {activeComponent === "git" && <Git filecontent={filecontent} />}
                   {activeComponent === "extension" && <Extension />}
+                  {activeComponent === "filemanger" && <Filemanager />}
                 </div>
               </Pane>
               {/* Pane ends here */}
@@ -824,6 +612,7 @@ export default function Home() {
           )}
         </div>
       </div>
+
     </main>
   );
 }

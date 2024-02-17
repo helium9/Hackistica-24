@@ -12,7 +12,7 @@ const connectMongoDB = async () => {
   try {
     console.log(process.env.MONGO_DB_URI);
     await mongoose.connect(process.env.MONGO_DB_URI);
-    console.log("Connected to MongoDB");
+    // console.log("Connected to MongoDB");
   } catch (error) {
     console.log("Error connecting to MongoDB: ", error);
   }
@@ -43,7 +43,7 @@ export async function POST(req,{params}) {
   }
   else{
 
-    console.log("user already exist")
+    // console.log("user already exist")
 
   }
  

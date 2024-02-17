@@ -1,4 +1,7 @@
-import React from "react";
+"use client"
+import React, { useState, useRef } from "react";
+import { v4 as uuidv4 } from 'uuid';
+import CopyToClipboard from "react-copy-to-clipboard";
 import {
   Modal,
   ModalContent,
@@ -15,9 +18,11 @@ import {
 } from "@nextui-org/react";
 import { ContentCopy } from "@mui/icons-material";
 
-export default function InputModal() {
+export default function InputModal({roomID, setRoomID}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
+  const [value, setValue] = useState("");
+  const [copied, setCopied] = useState(false);
+  const exitButtonRef = useRef(null);
   return (
     <>
       <Button onPress={onOpen} color="primary">
@@ -32,31 +37,46 @@ export default function InputModal() {
               </ModalHeader>
 
               <ModalBody>
-                <Input
+              <Input
                   variant="bordered"
                   isReadOnly
                   type="email"
-                  label="ID"
-                  defaultValue="junior@nextui.org"
+                  label="Your ID"
+                  defaultValue={uuidv4()}
                   endContent={
-                    <ContentCopy
-                      className="text-2xl m-2 pt-1"
-                      sx={{ color: "#757575" }}
-                    />
+                    <CopyToClipboard
+                      text="junior@nextui.org" // Text to copy - Use a variable if dynamic
+                      onCopy={() => {
+                        setCopied(true);
+                        alert("Copied!");
+                      }}
+                    >
+                      <ContentCopy
+                        className="text-2xl m-2 pt-1"
+                        sx={{ color: "#757575" }}
+                      />
+                    </CopyToClipboard>
                   }
                 />
                 <Input
                   autoFocus
                   label="Id"
-                  placeholder="Enter your id"
+                  placeholder="Enter Room ID"
                   variant="bordered"
+                  value={value}
+                  onValueChange={setValue}
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
+                <Button color="danger" ref={exitButtonRef} variant="flat" onPress={onClose}>
                   Close
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button color="primary" onPress={()=>{
+                  setRoomID(value);
+                  if(exitButtonRef.current!==null){
+                    exitButtonRef.current.click();
+                  }
+                }}>
                   Join Now
                 </Button>
               </ModalFooter>
