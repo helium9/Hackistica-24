@@ -54,32 +54,35 @@ addData(newData)
   .then(() => console.log('Data added successfully'))
   .catch(error => console.error('Error adding data:', error));
 
-export async function POST(req,{params}) {
-  const content=await req.json();
-  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+export async function POST(req, {params}) {
   try {
-  
-  await client.connect();
-  
-  
+    const content = await req.json();
     
-  console.log("hdgfhuerhfuh",content);
+    // Check if MongoDB URI is configured
+    if (!process.env.MONGO_DB_URI) {
+      console.log("MongoDB URI not configured, skipping test");
+      return Response.json({ status: "skipped", message: "Database not configured", data: content });
+    }
     
-    const database = client.db('Edit_X');
-    const collection = database.collection('test');
+    const client = new MongoClient(uri);
+    
+    try {
+      await client.connect();
+      console.log("Test12 API - Received content:", content);
+      
+      const database = client.db('Edit_X');
+      const collection = database.collection('test');
 
-    // Insert the data
-    const result = await collection.insertOne({name:"ki"});
-    console.log(`Inserted ${result.insertedCount} document`);
-
-  } finally {
-    // Close the client
-    await client.close();
+      const result = await collection.insertOne({name: "ki", timestamp: new Date()});
+      console.log(`Inserted ${result.insertedCount} document`);
+      
+      return Response.json({status: "ok", data: content});
+      
+    } finally {
+      await client.close();
+    }
+  } catch (error) {
+    console.error("Error in test12 API:", error);
+    return Response.json({ status: "error", message: error.message }, { status: 500 });
   }
-  
-
-    // connectMongoDB();
-
-   
-    return Response.json({"Connecd":content});
-  }
+}
