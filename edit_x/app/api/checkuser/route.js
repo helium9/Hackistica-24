@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
-require('dotenv').config();
-import bodyParser from 'body-parser';
-const { MongoClient } = require('mongodb');
+require("dotenv").config();
+import bodyParser from "body-parser";
+const { MongoClient } = require("mongodb");
 // Parse JSON bodies for this API
 export const config = {
-    api: {
-        bodyParser: true,
-    },
-}
+  api: {
+    bodyParser: true,
+  },
+};
 const connectMongoDB = async () => {
   try {
     console.log(process.env.MONGO_DB_URI);
@@ -20,43 +20,46 @@ const connectMongoDB = async () => {
 
 const uri = process.env.MONGO_DB_URI;
 
-
 // pages/api/postData.js
 
-
-  
-
-export async function POST(req,{params}) {
- 
-  const content=await req.json();
-  const client = new MongoClient(uri);
+export async function POST(req, { params }) {
   try {
-  await client.connect();
-  const database = client.db('Edit_X');
-  const collection = database.collection('test');
+    const content = await req.json();
 
-  const r = await collection.findOne({"user":content.email});
-  if(!r){
-    const ins = await collection.insertOne({email:content.email});
-    console.log(`Inserted ${result.insertedCount} document`);
+    // Check if MongoDB URI is configured
+    if (!process.env.MONGO_DB_URI) {
+      console.log("MongoDB URI not configured, skipping database check");
+      return Response.json({
+        status: "skipped",
+        message: "Database not configured",
+      });
+    }
 
+    const client = new MongoClient(uri);
+
+    try {
+      await client.connect();
+      const database = client.db("Edit_X");
+      const collection = database.collection("test");
+
+      const r = await collection.findOne({ email: content.email });
+
+      if (!r) {
+        const ins = await collection.insertOne({ email: content.email });
+        console.log(`Inserted document for user: ${content.email}`);
+      } else {
+        console.log("User already exists");
+      }
+
+      return Response.json({ status: "ok", message: "User checked" });
+    } finally {
+      await client.close();
+    }
+  } catch (error) {
+    console.error("Error in checkuser API:", error);
+    return Response.json(
+      { status: "error", message: error.message },
+      { status: 500 }
+    );
   }
-  else{
-
-    // console.log("user already exist")
-
-  }
- 
-
-
-  } finally {
-    // Close the client
-    await client.close();
-  }
-  
-
-    // connectMongoDB();
-
-   
-    return Response.json({"Connection":"ok"});
-  }
+}
